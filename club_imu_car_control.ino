@@ -3,15 +3,15 @@
 #include "config.h"
 
 // TB6612FNG
-#define PWMA 14
-#define AIN1 12
-#define AIN2 13
+#define PWMA 33
+#define AIN1 26
+#define AIN2 25
 
-#define PWMB 27
-#define BIN1 25
-#define BIN2 26
+#define PWMB 13
+#define BIN1 14
+#define BIN2 12
 
-#define STBY 33
+#define STBY 27
 
 // MQTT Server
 WiFiClient espClient;
@@ -26,6 +26,11 @@ int pitch = 0;
 int right = 0;
 int left = 0;
 int velocity = 100;
+
+int lastPitch = 0;
+int rollVariance = 3;
+int velocityDecay = 20;
+int stopDecay = 50;
 
 void setup() {
   Serial.begin(115200);
@@ -101,13 +106,29 @@ void rotateMotor(int roll, int pitch) {
   Serial.print("Velocity: ");
   Serial.println(velocity);
 
-  if (pitch <= 1) velocity = 100;
-  else velocity = 0;
+  if (pitch <= 1) {
+    // Start the motor from max velocity
+    if (lastPitch > 1) {
+      velocity = 200;
+    }
+  } else {
+    right = 1;
+    left = 1;
+    if (velocity - stopDecay >= 0) {
+      velocity -= stopDecay;
+    }
+  }
 
-  if (roll < -2) {
+  lastPitch = pitch;
+
+  if (velocity - velocityDecay >= 100) {
+    velocity -= velocityDecay;
+  }
+
+  if (roll < -rollVariance) {
     right = 1;
     left = 0;
-  } else if (roll > 2) {
+  } else if (roll > rollVariance) {
     right = 0;
     left = 1;
   } else right = left = 1;

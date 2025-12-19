@@ -10,5 +10,5 @@
 + Lắp 2 cục pin liion vào xe
 
 **Giải pháp thay thế**
-+ Thay sensor bằng điều khiển cầm tay
++ Thay sensor gia tốc bằng joystick
 + Thay MQTT bằng bluetooth giữa 2 con esp32
